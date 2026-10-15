@@ -843,6 +843,8 @@ export const DocsMarkdown = defineMarkdownComponent({
 
 ## Common Tasks
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup and the example-app workflow.
+
 ### Adding a new utility function
 
 1. Internal helpers go in `packages/comark/src/internal/`; public ones in `packages/comark/src/utils/`
