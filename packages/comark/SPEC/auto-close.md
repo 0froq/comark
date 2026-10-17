@@ -892,6 +892,21 @@ With the construct off nothing is closed — the delimiters stay literal:
 + foo\~bar\~baz
 ```
 
+```diff
+- H~2~O
++ H~2~O
+```
+
+```diff
+- a~footnote~
++ a~footnote~
+```
+
+```diff
+- x~ab~.
++ x~ab~.
+```
+
 ---
 
 ## Links (default protocol mode)

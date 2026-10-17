@@ -78,6 +78,8 @@
     "@types/markdown-it": "catalog:",
     "github-slugger": "catalog:",
     "hast-util-to-string": "catalog:",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
     "minimark": "catalog:",
     "rangi": "catalog:",
     "tsx": "catalog:",

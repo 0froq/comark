@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { MarkdownItPlugin } from '../../src/types'
+import markdownItSubReal from 'markdown-it-sub'
+import markdownItSupReal from 'markdown-it-sup'
 import { defineComarkPlugin, parseMarkdown } from '../../src/parse'
 
 // Minimal inline rules that mirror what `markdown-it-sub` / `markdown-it-sup`
@@ -62,5 +64,38 @@ describe('sub/sup token mapping (regression for #201)', () => {
   it('preserves both sub and sup in the same paragraph', async () => {
     const tree = await parseMarkdown('H~2~O and x^2^', { plugins: [subscript(), superscript()] })
     expect(tree.nodes).toEqual([['p', {}, 'H', ['sub', {}, '2'], 'O and x', ['sup', {}, '2']]])
+  })
+})
+
+// Regression for comarkdown/comark#462: real markdown-it inline plugins must see
+// the source untouched by auto-close (no `\~` escape inserted before `~`).
+describe('real markdown-it-sub / markdown-it-sup plugins (#462)', () => {
+  const realSubscript = defineComarkPlugin(() => ({
+    name: 'subscript',
+    markdownItPlugins: [markdownItSubReal as MarkdownItPlugin],
+  }))
+  const realSuperscript = defineComarkPlugin(() => ({
+    name: 'superscript',
+    markdownItPlugins: [markdownItSupReal as MarkdownItPlugin],
+  }))
+
+  it('parses a trailing subscript', async () => {
+    const tree = await parseMarkdown('a~footnote~', { plugins: [realSubscript()] })
+    expect(tree.nodes).toEqual([['p', {}, 'a', ['sub', {}, 'footnote']]])
+  })
+
+  it('parses a mid-word subscript', async () => {
+    const tree = await parseMarkdown('H~2~O', { plugins: [realSubscript()] })
+    expect(tree.nodes).toEqual([['p', {}, 'H', ['sub', {}, '2'], 'O']])
+  })
+
+  it('parses a non-numeric subscript followed by punctuation', async () => {
+    const tree = await parseMarkdown('x~ab~.', { plugins: [realSubscript()] })
+    expect(tree.nodes).toEqual([['p', {}, 'x', ['sub', {}, 'ab'], '.']])
+  })
+
+  it('parses a superscript', async () => {
+    const tree = await parseMarkdown('x^2^', { plugins: [realSuperscript()] })
+    expect(tree.nodes).toEqual([['p', {}, 'x', ['sup', {}, '2']]])
   })
 })

@@ -1056,8 +1056,9 @@ function codePointAt(text: string, i: number): string {
 }
 
 /**
- * True for the subscript pattern `word~digits~word` (`H~2~o`), the one paired
- * use of single tildes that must stay unescaped.
+ * True for a subscript-style single-tilde pair that must stay unescaped so
+ * plugins like `markdown-it-sub` can parse it: `word~digits~word` (`H~2~o`), or
+ * `word~text~` not followed by a word character (`a~note~`, `x~ab~.`).
  */
 function isSubscriptTilde(text: string, i: number): boolean {
   for (let j = i - 1; j >= 0 && text.charCodeAt(j) !== 10; j--) {
@@ -1073,9 +1074,13 @@ function isSubscriptPair(text: string, open: number, close: number): boolean {
   if (close - open < 2) return false
   if (text.charCodeAt(open - 1) === 126 || text.charCodeAt(open + 1) === 126) return false
   if (text.charCodeAt(close + 1) === 126) return false
+  if (!isAlnum(codePointBefore(text, open))) return false
+  let digits = true
   for (let k = open + 1; k < close; k++) {
     const c = text.charCodeAt(k)
-    if (c < 48 || c > 57) return false
+    if (c === 32 || c === 9 || c === 13) return false
+    if (c < 48 || c > 57) digits = false
   }
-  return isAlnum(codePointBefore(text, open)) && isAlnum(codePointAt(text, close + 1))
+  const after = close + 1 < text.length ? codePointAt(text, close + 1) : ''
+  return digits ? isAlnum(after) : !isAlnum(after)
 }
