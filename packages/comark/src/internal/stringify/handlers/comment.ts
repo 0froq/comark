@@ -1,9 +1,10 @@
 import type { State } from 'comark/render'
 import type { ElementNode } from 'comark'
 
-export function comment(node: ElementNode, _state: State) {
+export function comment(node: ElementNode, state: State, parent?: ElementNode) {
   if (node[0] === null) {
-    return `<!--${node[2]}-->` + _state.context.blockSeparator
+    // Inline comments (inside a paragraph, emphasis, …) must not end the block
+    return `<!--${node[2]}-->` + (parent ? '' : state.context.blockSeparator)
   }
 
   return ''
