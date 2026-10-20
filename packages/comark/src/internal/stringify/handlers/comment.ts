@@ -29,7 +29,9 @@ export function comment(node: ElementNode, state: State, parent?: ElementNode): 
     // Block comments nested in a container (blockquote, list item, …) still do.
     const isInline =
       parent !== undefined &&
-      (PHRASING_PARENTS.has(String(parent[0])) || parent.some((child, index) => index > 1 && typeof child === 'string'))
+      (PHRASING_PARENTS.has(String(parent[0])) ||
+        (parent[1] as { $?: { block?: number } })?.$?.block === 0 ||
+        parent.some((child, index) => index > 1 && typeof child === 'string'))
     return `<!--${node[2]}-->` + (isInline ? '' : state.context.blockSeparator)
   }
 
